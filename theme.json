@@ -1,0 +1,18 @@
+{
+  "id": "mini-sidebar",
+  "name": "Mini Sidebar",
+  "description": "Hover-triggered right-edge icon rail with a Reading List panel and an embedded AI chat panel.",
+  "author": "Srrrone",
+  "version": "0.2.0",
+  "style": {
+    "chrome": "userChrome.css"
+  },
+  "scripts": {
+    "mini-sidebar.uc.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ],
+      "loadOrder": 10
+    }
+  }
+}

@@ -1,0 +1,213 @@
+/* ==========================================================================
+   Mini Sidebar — hover-triggered icon rail + slide-out panel on the
+   right edge of Zen Browser, similar to Brave's mini sidebar.
+   ========================================================================== */
+
+:root {
+  --msb-rail-width: 44px;
+  --msb-panel-width: 380px;
+  --msb-bg: light-dark(rgba(255, 255, 255, 0.94), rgba(28, 28, 32, 0.94));
+  --msb-border: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.12));
+  --msb-text: light-dark(#1a1a1e, #f0f0f2);
+}
+
+/* Thin invisible strip along the right edge that triggers the rail. */
+#msb-hover-trigger {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 10px;
+  height: 100%;
+  z-index: 2147483000;
+  background: transparent;
+}
+
+/* Icon rail — hidden off-screen until hovered. */
+#msb-rail {
+  position: fixed;
+  top: 0;
+  right: 0;
+  height: 100%;
+  width: var(--msb-rail-width);
+  background: var(--msb-bg);
+  border-left: 1px solid var(--msb-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 16px;
+  gap: 8px;
+  transform: translateX(100%);
+  transition: transform 160ms ease;
+  z-index: 2147483001;
+}
+
+#msb-rail.msb-visible {
+  transform: translateX(0);
+}
+
+.msb-rail-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  color: var(--msb-text);
+  font-size: 16px;
+  -moz-appearance: none;
+}
+
+.msb-rail-icon:hover {
+  background: color-mix(in srgb, var(--zen-primary-color, #0a84ff) 15%, transparent);
+}
+
+.msb-rail-icon[data-active="true"] {
+  background: color-mix(in srgb, var(--zen-primary-color, #0a84ff) 25%, transparent);
+  color: var(--zen-primary-color, #0a84ff);
+}
+
+/* Slide-out panel — sits to the left of the rail, stays open once opened
+   regardless of rail hover state. */
+#msb-panel {
+  position: fixed;
+  top: 0;
+  right: var(--msb-rail-width);
+  height: 100%;
+  width: var(--msb-panel-width);
+  background: var(--msb-bg);
+  border-left: 1px solid var(--msb-border);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  display: flex;
+  flex-direction: column;
+  transform: translateX(100%);
+  transition: transform 180ms ease;
+  z-index: 2147483000;
+}
+
+#msb-panel.msb-visible {
+  transform: translateX(0);
+}
+
+/* Pushes Zen's actual content area over, instead of the panel just
+   sitting on top of it. Only applies while a panel is actually open —
+   the rail itself (hover-only, auto-retracting) never pushes content,
+   just the panel does. */
+:root[msb-panel-open="true"] #zen-appcontent-wrapper {
+  margin-inline-end: calc(var(--msb-rail-width) + var(--msb-panel-width)) !important;
+  transition: margin-inline-end 180ms ease !important;
+}
+
+#msb-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--msb-border);
+  flex-shrink: 0;
+}
+
+#msb-panel-title {
+  font-weight: 600;
+  color: var(--msb-text);
+}
+
+#msb-panel-close {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--msb-text);
+  font-size: 16px;
+  padding: 4px 8px;
+  -moz-appearance: none;
+}
+
+#msb-panel-close:hover {
+  opacity: 0.7;
+}
+
+#msb-panel-body {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Reading list panel */
+#msb-reading-list-add {
+  margin: 8px 12px;
+  padding: 8px;
+  border-radius: 8px;
+  border: 1px dashed var(--msb-border);
+  background: transparent;
+  color: var(--msb-text);
+  cursor: pointer;
+  font-size: 13px;
+  -moz-appearance: none;
+}
+
+#msb-reading-list-add:hover {
+  background: color-mix(in srgb, var(--zen-primary-color, #0a84ff) 10%, transparent);
+}
+
+#msb-reading-list-items {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 8px;
+}
+
+.msb-reading-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: var(--msb-text);
+  font-size: 13px;
+}
+
+.msb-reading-item:hover {
+  background: color-mix(in srgb, currentColor 8%, transparent);
+}
+
+.msb-reading-item-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.msb-reading-item-remove {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--msb-text);
+  opacity: 0.5;
+  padding: 2px 6px;
+  -moz-appearance: none;
+}
+
+.msb-reading-item-remove:hover {
+  opacity: 1;
+}
+
+#msb-reading-empty {
+  padding: 24px 16px;
+  text-align: center;
+  color: var(--msb-text);
+  opacity: 0.5;
+  font-size: 13px;
+}
+
+/* AI panel — a real <browser> element loading the AI site directly */
+#msb-ai-browser {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
