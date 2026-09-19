@@ -79,17 +79,6 @@
   margin-inline-end: 6px !important;
 }
 
-/* Full-height sidebar — stretches the sidebar panel edge to edge with
-   no top/bottom gap. Best-effort: if your sidebar is already in Zen's
-   own floating/compact layout mode, this should just reinforce that; if
-   you're in a different layout mode, this may not be the full picture
-   since the floating panel SHAPE itself is a native Zen layout setting,
-   not something this rule creates from scratch. */
-#navigator-toolbox {
-  height: 100% !important;
-  margin-block: 0 !important;
-}
-
 /* --------------------------------------------------------------------
    Window control buttons, restyled as small macOS-style colored dots
    (Dia's look) instead of Zen's default square min/max/restore/close
