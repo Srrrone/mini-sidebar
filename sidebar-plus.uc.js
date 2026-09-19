@@ -3,7 +3,7 @@
 // @description    A custom header bar — window controls + current
 //                  workspace name — injected directly into the sidebar's
 //                  own visible content, above the pinned icons.
-// @version        3.0.0
+// @version        3.1.0
 // ==/UserScript==
 
 (() => {
@@ -72,6 +72,13 @@
     const name = document.createElement('span');
     name.id = 'hf-header-space-name';
     name.textContent = getActiveWorkspaceName();
+    name.title = 'Click to collapse/expand pinned folders';
+    // Delegates to the REAL native indicator's own click handling
+    // (confirmed in ZenSpace.mjs — it toggles the pinned-folders
+    // collapse state) rather than reimplementing that logic ourselves.
+    name.addEventListener('click', () => {
+      document.querySelector('zen-workspace[active] .zen-current-workspace-indicator')?.click();
+    });
 
     header.append(dots, name);
     return header;
