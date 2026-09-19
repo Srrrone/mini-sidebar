@@ -67,6 +67,12 @@
   display: flex !important;
   align-items: center !important;
   gap: 6px !important;
+  /* Without an explicit minimum, this row can collapse short enough
+     that its content (window buttons, Spaces) falls back to rendering
+     in the native title bar position instead of here — this is scoped
+     to just this one row, not the whole sidebar container, so it
+     shouldn't cause the address-bar overlap the broader version did. */
+  min-height: 28px !important;
 }
 
 #zen-sidebar-top-buttons .titlebar-buttonbox-container {
