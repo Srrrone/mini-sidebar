@@ -80,9 +80,17 @@
   margin-top: 3px !important;
 }
 
-#zen-sidebar-top-buttons #zen-workspaces-button {
-  margin-inline-start: auto !important;
-  margin-inline-end: 6px !important;
+/* The mirrored workspace-name label (created by sidebar-plus.uc.js) —
+   plain text next to the window controls, matching the reference's
+   "Personal" label sitting beside the traffic lights. */
+#hf-space-name-mirror {
+  margin-inline-start: 8px !important;
+  font-weight: 600 !important;
+  font-size: 13px !important;
+  color: var(--toolbar-color, inherit) !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
 }
 
 /* --------------------------------------------------------------------
