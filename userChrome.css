@@ -59,44 +59,51 @@
   background: var(--dia-essential-bg-hover) !important;
 }
 
-/* Sidebar top area — window control buttons, now joined by the Spaces
-   switcher (moved here by the script). Extra gap and centered alignment
-   so both sit together cleanly instead of cramped against each other. */
-#zen-sidebar-top-buttons {
-  margin-block: var(--dia-top-row-space) !important;
+/* --------------------------------------------------------------------
+   Sidebar header — window controls + current workspace name, built and
+   injected by sidebar-plus.uc.js directly into the sidebar's own
+   scrollable content (#tabbrowser-tabs), as the very first thing shown,
+   above the pinned icons. This replaces the earlier approach of trying
+   to relocate/restyle Zen's native #zen-sidebar-top-buttons toolbar,
+   which is architecturally part of the shared toolbox with the address
+   bar (confirmed via source) and can't be moved into the sidebar's own
+   box through CSS alone.
+   -------------------------------------------------------------------- */
+#hf-sidebar-header {
   display: flex !important;
   align-items: center !important;
-  gap: 6px !important;
-  /* Without an explicit minimum, this row can collapse short enough
-     that its content (window buttons, Spaces) falls back to rendering
-     in the native title bar position instead of here — this is scoped
-     to just this one row, not the whole sidebar container, so it
-     shouldn't cause the address-bar overlap the broader version did. */
-  min-height: 28px !important;
-  /* This toolbar is genuinely inserted into the SAME shared
-     #navigator-toolbox as the address bar and back/forward buttons
-     (confirmed via Zen's source, ZenCustomizableUI.sys.mjs) — it has no
-     width of its own by default, so it just shrink-wraps to fit its
-     content and lets the address bar start immediately after. Pinning
-     it to the sidebar's own width (the same variable the sidebar column
-     below it uses) is what makes it actually align as part of the
-     sidebar, instead of blending into the shared toolbar row. */
-  width: var(--zen-sidebar-width) !important;
-  max-width: var(--zen-sidebar-width) !important;
-  flex: 0 0 var(--zen-sidebar-width) !important;
-  box-sizing: border-box !important;
+  gap: 8px !important;
+  padding: 8px 10px 4px 10px !important;
 }
 
-#zen-sidebar-top-buttons .titlebar-buttonbox-container {
-  margin-inline-start: 5px !important;
-  margin-top: 3px !important;
+.hf-header-dots {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  flex-shrink: 0 !important;
 }
 
-/* The mirrored workspace-name label (created by sidebar-plus.uc.js) —
-   plain text next to the window controls, matching the reference's
-   "Personal" label sitting beside the traffic lights. */
-#hf-space-name-mirror {
-  margin-inline-start: 8px !important;
+.hf-header-dot {
+  -moz-appearance: none !important;
+  appearance: none !important;
+  width: 12px !important;
+  height: 12px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  cursor: pointer !important;
+}
+
+.hf-dot-close { background-color: #ff5f57 !important; }
+.hf-dot-min   { background-color: #febc2e !important; }
+.hf-dot-max   { background-color: #28c840 !important; }
+
+.hf-header-dot:hover {
+  filter: brightness(1.15) !important;
+}
+
+#hf-header-space-name {
   font-weight: 600 !important;
   font-size: 13px !important;
   color: var(--toolbar-color, inherit) !important;
@@ -106,65 +113,12 @@
 }
 
 /* Hides the ORIGINAL workspace name/icon/chevron further down in the
-   sidebar — the mirrored label above replaces it, so showing both would
-   just be a duplicate. Only the name/icon/chevron part is hidden, not
-   the whole indicator element, since that element also wraps each
+   sidebar — our own header's label replaces it, so showing both would
+   be a duplicate. Only the name/icon/chevron part is hidden, not the
+   whole indicator element, since that element also wraps each
    workspace's actual tab-list content — hiding the whole thing would
    take the tabs with it. */
 .zen-current-workspace-indicator-stack,
 .zen-current-workspace-indicator-name {
   display: none !important;
-}
-
-/* --------------------------------------------------------------------
-   Window control buttons, restyled as small macOS-style colored dots
-   (Dia's look) instead of Zen's default square min/max/restore/close
-   buttons. These are real native elements
-   (.titlebar-buttonbox-container > .titlebar-buttonbox > .titlebar-button),
-   confirmed via the console to already live inside
-   #zen-sidebar-top-buttons on this setup — nothing needed to move
-   them, just to reshape them.
-   -------------------------------------------------------------------- */
-#zen-sidebar-top-buttons .titlebar-buttonbox-container,
-#zen-sidebar-top-buttons .titlebar-buttonbox {
-  display: flex !important;
-  align-items: center !important;
-  gap: 8px !important;
-  height: auto !important;
-  width: auto !important;
-}
-
-#zen-sidebar-top-buttons .titlebar-button {
-  -moz-appearance: none !important;
-  appearance: none !important;
-  width: 12px !important;
-  height: 12px !important;
-  min-width: 12px !important;
-  min-height: 12px !important;
-  border-radius: 50% !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  border: none !important;
-}
-
-#zen-sidebar-top-buttons .titlebar-button > .toolbarbutton-icon,
-#zen-sidebar-top-buttons .titlebar-button > .toolbarbutton-text {
-  display: none !important;
-}
-
-#zen-sidebar-top-buttons .titlebar-button.titlebar-min {
-  background-color: #febc2e !important;
-}
-
-#zen-sidebar-top-buttons .titlebar-button.titlebar-max,
-#zen-sidebar-top-buttons .titlebar-button.titlebar-restore {
-  background-color: #28c840 !important;
-}
-
-#zen-sidebar-top-buttons .titlebar-button.titlebar-close {
-  background-color: #ff5f57 !important;
-}
-
-#zen-sidebar-top-buttons .titlebar-button:hover {
-  filter: brightness(1.15) !important;
 }
