@@ -1,46 +1,75 @@
 // ==UserScript==
-// @name           Dia Sidebar
-// @description    Moves the native Spaces switcher up next to the window
-//                  control buttons at the top of the sidebar.
-// @version        1.0.0
+// @name           Sidebar Plus
+// @description    Mirrors the current workspace's name ("Personal", etc.)
+//                  into the sidebar's top row, next to the window controls.
+// @version        2.0.0
 // ==/UserScript==
 
 (() => {
   'use strict';
 
-  // Moves the native Spaces/workspace switcher (<zen-workspace-icons
-  // id="zen-workspaces-button">) up into #zen-sidebar-top-buttons, so it
-  // sits alongside the window controls instead of in the bottom bar.
-  // The window control buttons themselves (.titlebar-buttonbox-container)
-  // already live in #zen-sidebar-top-buttons natively on this setup —
-  // no relocation needed for those; see userChrome.css for what makes
-  // them look like Dia's colored dots instead of square buttons.
-  function moveSpacesSwitcherToTop() {
+  const MIRROR_ID = 'hf-space-name-mirror';
+
+  // The real element showing the current workspace's name
+  // (.zen-current-workspace-indicator-name) is fused into a much bigger
+  // native structure — the vbox that wraps a workspace's entire tab-list
+  // section — not a small standalone label. Actually relocating THAT
+  // risks breaking real tab-list functionality. So instead of moving it,
+  // this creates a small label of our own in the top row and just keeps
+  // its text mirrored to whatever the real one currently shows.
+  function getSourceLabel() {
+    return document.querySelector('.zen-current-workspace-indicator-name');
+  }
+
+  function ensureMirrorLabel(topButtons) {
+    let mirror = document.getElementById(MIRROR_ID);
+    if (!mirror) {
+      mirror = document.createElement('span');
+      mirror.id = MIRROR_ID;
+      topButtons.appendChild(mirror);
+    } else if (mirror.parentElement !== topButtons) {
+      topButtons.appendChild(mirror);
+    }
+    return mirror;
+  }
+
+  function syncWorkspaceName() {
     const topButtons = document.getElementById('zen-sidebar-top-buttons');
     if (!topButtons) return;
 
-    const spacesButton = document.getElementById('zen-workspaces-button');
-    if (spacesButton && spacesButton.parentElement !== topButtons) {
-      topButtons.appendChild(spacesButton);
-    }
+    const source = getSourceLabel();
+    const mirror = ensureMirrorLabel(topButtons);
+    mirror.textContent = source?.textContent || '';
   }
 
   function observeTopRow() {
-    const navBar = document.getElementById('nav-bar');
-    if (navBar) {
-      new MutationObserver(() => moveSpacesSwitcherToTop()).observe(navBar, { childList: true });
+    // Re-sync whenever the real label's text actually changes (switching
+    // workspaces, renaming one, etc.).
+    const source = getSourceLabel();
+    if (source) {
+      new MutationObserver(() => syncWorkspaceName()).observe(source, {
+        childList: true,
+        characterData: true,
+        subtree: true
+      });
     }
 
-    // Also re-run whenever compact mode itself gets toggled, since Zen
-    // can reset toolbar contents around that transition.
-    new MutationObserver(() => moveSpacesSwitcherToTop()).observe(document.documentElement, {
+    // Also re-sync on broader toolbar changes and compact-mode toggling,
+    // in case the source label itself gets recreated rather than just
+    // having its text updated.
+    const navBar = document.getElementById('nav-bar');
+    if (navBar) {
+      new MutationObserver(() => syncWorkspaceName()).observe(navBar, { childList: true });
+    }
+
+    new MutationObserver(() => syncWorkspaceName()).observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['zen-compact-mode']
     });
   }
 
   function init() {
-    moveSpacesSwitcherToTop();
+    syncWorkspaceName();
     observeTopRow();
   }
 
