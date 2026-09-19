@@ -3,7 +3,7 @@
 // @description    A custom header bar — window controls + current
 //                  workspace name — injected directly into the sidebar's
 //                  own visible content, above the pinned icons.
-// @version        3.1.0
+// @version        3.2.0
 // ==/UserScript==
 
 (() => {
@@ -45,29 +45,21 @@
     }
   }
 
+  // Relocates the REAL native window-control button box (the same one
+  // Zen's own code exposes via this API) into our header, instead of
+  // building fake lookalike buttons. This means there's only ever one
+  // set of window buttons on screen — wherever they currently are — and
+  // they carry genuine OS-level behavior rather than an approximation.
+  function getRealWindowButtons() {
+    return window.gZenVerticalTabsManager?.actualWindowButtons || null;
+  }
+
   function buildHeader() {
     const header = document.createElement('div');
     header.id = HEADER_ID;
 
     const dots = document.createElement('div');
     dots.className = 'hf-header-dots';
-
-    const closeDot = document.createElement('button');
-    closeDot.className = 'hf-header-dot hf-dot-close';
-    closeDot.title = 'Close';
-    closeDot.addEventListener('click', () => invokeCommand('cmd_closeWindow'));
-
-    const minDot = document.createElement('button');
-    minDot.className = 'hf-header-dot hf-dot-min';
-    minDot.title = 'Minimize';
-    minDot.addEventListener('click', () => invokeCommand('cmd_minimizeWindow'));
-
-    const maxDot = document.createElement('button');
-    maxDot.className = 'hf-header-dot hf-dot-max';
-    maxDot.title = 'Maximize';
-    maxDot.addEventListener('click', () => toggleMaximize());
-
-    dots.append(closeDot, minDot, maxDot);
 
     const name = document.createElement('span');
     name.id = 'hf-header-space-name';
@@ -84,6 +76,18 @@
     return header;
   }
 
+  // Moves the real window buttons into our header's dots container, if
+  // they're not already there. Safe to call repeatedly — it's a no-op
+  // once they've already been relocated.
+  function ensureRealWindowButtonsInHeader() {
+    const dots = document.querySelector(`#${HEADER_ID} .hf-header-dots`);
+    const realButtons = getRealWindowButtons();
+    if (dots && realButtons && realButtons.parentElement !== dots) {
+      dots.appendChild(realButtons);
+    }
+  }
+
+
   function ensureHeader() {
     const tabs = document.getElementById('tabbrowser-tabs');
     if (!tabs) return;
@@ -95,6 +99,8 @@
     } else if (tabs.firstElementChild !== header) {
       tabs.prepend(header);
     }
+
+    ensureRealWindowButtonsInHeader();
 
     const name = document.getElementById('hf-header-space-name');
     if (name) name.textContent = getActiveWorkspaceName();
