@@ -122,3 +122,28 @@
 .zen-current-workspace-indicator-name {
   display: none !important;
 }
+
+/* The now-hidden name/stack still left behind whatever spacing it used
+   to occupy on the indicator itself, showing up as blank space right
+   under the pinned icons. Zeroing this out closes that gap. */
+.zen-current-workspace-indicator {
+  padding-block-start: 0 !important;
+  min-height: 0 !important;
+}
+
+/* The native #zen-sidebar-top-buttons toolbar is no longer used for
+   anything (our own header, injected via the script, replaces what it
+   used to show) — but left alone, it still reserves its own row of
+   space at the very top, showing up as a gap above our header. Nothing
+   inside it needs to stay interactive for this to matter — it only ever
+   held the window buttons (now duplicated by our own dots) and a
+   Compact Mode toggle button most people don't use day-to-day.
+   Collapsing its height removes that dead space instead of just hiding
+   its contents, which would leave the empty row behind. */
+#zen-sidebar-top-buttons {
+  height: 0 !important;
+  min-height: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
