@@ -3,7 +3,7 @@
   "name": "Sidebar Plus",
   "description": "Dia-style pinned-icon grid, colored window-control dots, and the current workspace name mirrored to the sidebar top for Zen Browser.",
   "author": "Srrrone",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "style": {
     "chrome": "userChrome.css"
   },
