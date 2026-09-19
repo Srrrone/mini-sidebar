@@ -3,7 +3,7 @@
 // @description    A custom header bar — window controls + current
 //                  workspace name — injected directly into the sidebar's
 //                  own visible content, above the pinned icons.
-// @version        3.2.0
+// @version        3.3.0
 // ==/UserScript==
 
 (() => {
@@ -120,6 +120,17 @@
     if (tabs) {
       new MutationObserver(() => ensureHeader()).observe(tabs, { childList: true });
     }
+
+    // Compact Mode's sidebar/toolbar only fully initialize their real
+    // layout once they're actually revealed (hover, or otherwise made
+    // active) — plausibly why the header didn't populate correctly
+    // until the first click. Re-running on these state changes too
+    // means it doesn't depend on that first interaction to catch up.
+    new MutationObserver(() => ensureHeader()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['zen-has-hover', 'zen-compact-mode-active', 'zen-compact-mode'],
+      subtree: true
+    });
   }
 
   function init() {
