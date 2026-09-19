@@ -158,19 +158,21 @@
   padding-block-start: 0 !important;
 }
 
-/* The native #zen-sidebar-top-buttons toolbar is no longer used for
-   anything (our own header, injected via the script, replaces what it
-   used to show) — but left alone, it still reserves its own row of
-   space at the very top, showing up as a gap above our header. Nothing
-   inside it needs to stay interactive for this to matter — it only ever
-   held the window buttons (now duplicated by our own dots) and a
-   Compact Mode toggle button most people don't use day-to-day.
-   Collapsing its height removes that dead space instead of just hiding
-   its contents, which would leave the empty row behind. */
-#zen-sidebar-top-buttons {
+/* The earlier fix here collapsed #zen-sidebar-top-buttons permanently
+   to close the top gap. That was the wrong element and too blunt a
+   technique — found via a real, published Zen compact-mode theme
+   (kian1991/bordeless-compactmode) that the actual space-reserving
+   element is #zen-appcontent-navbar-wrapper, Compact Mode's own
+   collapsed-toolbar placeholder, not our sidebar's top-buttons row.
+   This version only collapses it while it's genuinely NOT active/
+   hovered — preserving Compact Mode's real reveal-on-hover behavior for
+   the toolbar, instead of permanently breaking it the way a flat
+   height:0 on the wrong element risked doing (a plausible cause of the
+   other glitches — first-launch buttons not appearing, things looking
+   incomplete — since that rule may have interfered with Compact Mode's
+   own state transitions). */
+:root[zen-compact-mode="true"] #zen-appcontent-navbar-wrapper:not(
+    :is([zen-has-hover], [has-popup-menu], [zen-compact-mode-active])
+  ) {
   height: 0 !important;
-  min-height: 0 !important;
-  padding: 0 !important;
-  margin: 0 !important;
-  overflow: hidden !important;
 }
