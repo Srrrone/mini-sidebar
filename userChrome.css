@@ -1,0 +1,144 @@
+/* ==========================================================================
+   Dia-style sidebar top — pinned icon grid + integrated window controls
+   --------------------------------------------------------------------------
+   Scope: the pinned "Essentials" row styled as rounded Dia-style tiles,
+   the Spaces switcher moved up next to the window control buttons (the
+   actual move happens in highlighted-folders.uc.js — CSS can't relocate
+   an element between two separate toolbars), and the sidebar stretched
+   to fill the full window height.
+
+   The essentials-grid and top-buttons technique was worked out by
+   reading z1n-k/zia's chrome.css (https://github.com/z1n-k/zia) as
+   reference, per request — these are real native Zen elements
+   (.zen-essentials-container, .tabbrowser-tab[zen-essential],
+   #zen-sidebar-top-buttons), not anything invented; the values below
+   are our own.
+   ========================================================================== */
+
+:root {
+  --dia-essential-radius: 12px;
+  --dia-essential-gap: 3px;
+  --dia-essential-min-width: 54px;
+  --dia-essential-max-width: 120px;
+  --dia-essential-height: 41px;
+  --dia-essential-bg: rgba(255, 255, 255, 0.13);
+  --dia-essential-bg-hover: rgba(255, 255, 255, 0.16);
+  --dia-essential-bottom-space: 8px;
+  --dia-top-row-space: 6.5px;
+}
+
+/* Pinned tabs ("Essentials") as a rounded tile grid — a fixed 4-column
+   grid, matching Dia's own row count exactly, instead of auto-fill
+   (which wraps to an inconsistent number per row depending on
+   available width — the uneven "5 then 1" layout you saw). */
+:root[zen-sidebar-expanded="true"] .zen-essentials-container {
+  grid-template-columns: repeat(4, 1fr) !important;
+  gap: var(--dia-essential-gap) !important;
+  padding-bottom: var(--dia-essential-bottom-space) !important;
+}
+
+:root[zen-sidebar-expanded="true"] .zen-essentials-container > .tabbrowser-tab[zen-essential] {
+  min-width: 0 !important;
+  max-width: var(--dia-essential-max-width) !important;
+  width: 100% !important;
+}
+
+:root[zen-sidebar-expanded="true"] #zen-essentials {
+  --tab-min-height: var(--dia-essential-height) !important;
+}
+
+.tabbrowser-tab[zen-essential] > .tab-stack > .tab-background {
+  border-radius: var(--dia-essential-radius) !important;
+}
+
+.tabbrowser-tab[zen-essential]:not([visuallyselected]) > .tab-stack > .tab-background {
+  background: var(--dia-essential-bg) !important;
+}
+
+.tabbrowser-tab[zen-essential]:not([visuallyselected]):hover > .tab-stack > .tab-background {
+  background: var(--dia-essential-bg-hover) !important;
+}
+
+/* Sidebar top area — window control buttons, now joined by the Spaces
+   switcher (moved here by the script). Extra gap and centered alignment
+   so both sit together cleanly instead of cramped against each other. */
+#zen-sidebar-top-buttons {
+  margin-block: var(--dia-top-row-space) !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-buttonbox-container {
+  margin-inline-start: 5px !important;
+  margin-top: 3px !important;
+}
+
+#zen-sidebar-top-buttons #zen-workspaces-button {
+  margin-inline-start: auto !important;
+  margin-inline-end: 6px !important;
+}
+
+/* Full-height sidebar — stretches the sidebar panel edge to edge with
+   no top/bottom gap. Best-effort: if your sidebar is already in Zen's
+   own floating/compact layout mode, this should just reinforce that; if
+   you're in a different layout mode, this may not be the full picture
+   since the floating panel SHAPE itself is a native Zen layout setting,
+   not something this rule creates from scratch. */
+#navigator-toolbox {
+  height: 100% !important;
+  margin-block: 0 !important;
+}
+
+/* --------------------------------------------------------------------
+   Window control buttons, restyled as small macOS-style colored dots
+   (Dia's look) instead of Zen's default square min/max/restore/close
+   buttons. These are real native elements
+   (.titlebar-buttonbox-container > .titlebar-buttonbox > .titlebar-button),
+   confirmed via the console to already live inside
+   #zen-sidebar-top-buttons on this setup — nothing needed to move
+   them, just to reshape them.
+   -------------------------------------------------------------------- */
+#zen-sidebar-top-buttons .titlebar-buttonbox-container,
+#zen-sidebar-top-buttons .titlebar-buttonbox {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-button {
+  -moz-appearance: none !important;
+  appearance: none !important;
+  width: 12px !important;
+  height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
+  border-radius: 50% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-button > .toolbarbutton-icon,
+#zen-sidebar-top-buttons .titlebar-button > .toolbarbutton-text {
+  display: none !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-button.titlebar-min {
+  background-color: #febc2e !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-button.titlebar-max,
+#zen-sidebar-top-buttons .titlebar-button.titlebar-restore {
+  background-color: #28c840 !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-button.titlebar-close {
+  background-color: #ff5f57 !important;
+}
+
+#zen-sidebar-top-buttons .titlebar-button:hover {
+  filter: brightness(1.15) !important;
+}
