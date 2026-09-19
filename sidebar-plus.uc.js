@@ -1,77 +1,117 @@
 // ==UserScript==
 // @name           Sidebar Plus
-// @description    Mirrors the current workspace's name ("Personal", etc.)
-//                  into the sidebar's top row, next to the window controls.
-// @version        2.1.0
+// @description    A custom header bar — window controls + current
+//                  workspace name — injected directly into the sidebar's
+//                  own visible content, above the pinned icons.
+// @version        3.0.0
 // ==/UserScript==
 
 (() => {
   'use strict';
 
-  const MIRROR_ID = 'hf-space-name-mirror';
+  const HEADER_ID = 'hf-sidebar-header';
 
-  // The active workspace's root element gets an `active="true"` attribute
-  // (confirmed via Zen's source, ZenSpace.mjs) — every OTHER workspace's
-  // name label also exists in the DOM at the same time (just not shown),
-  // so a plain querySelector without this scoping always grabbed
-  // whichever one happened to be first in the page, not the one that was
-  // actually active. That's why the mirrored label was stuck on one
-  // workspace's name regardless of which space was actually selected.
-  function getSourceLabel() {
-    return document.querySelector('zen-workspace[active] .zen-current-workspace-indicator-name');
+  // Earlier versions tried to relocate/restyle Zen's native
+  // #zen-sidebar-top-buttons toolbar. That turned out to be a dead end —
+  // confirmed via Zen's own source (ZenCustomizableUI.sys.mjs) that this
+  // toolbar is inserted into window.gNavToolbox, the SAME shared toolbox
+  // that holds the address bar. No CSS width/position trick moves an
+  // element into a genuinely different box. This version instead builds
+  // its own small header and injects it directly into the sidebar's
+  // real scrollable content (#tabbrowser-tabs — the same container the
+  // Highlighted Folders mod already uses reliably), as the first thing
+  // shown, above the pinned icons.
+
+  function getActiveWorkspaceName() {
+    return document.querySelector('zen-workspace[active] .zen-current-workspace-indicator-name')
+      ?.textContent || '';
   }
 
-  function ensureMirrorLabel(topButtons) {
-    let mirror = document.getElementById(MIRROR_ID);
-    if (!mirror) {
-      mirror = document.createElement('span');
-      mirror.id = MIRROR_ID;
-      topButtons.appendChild(mirror);
-    } else if (mirror.parentElement !== topButtons) {
-      topButtons.appendChild(mirror);
+  // Reuses Zen's own real commands (the exact same ones its native
+  // window-control buttons invoke) rather than reimplementing
+  // minimize/maximize/close logic ourselves — guarantees identical
+  // behavior instead of an approximation.
+  function invokeCommand(id) {
+    const cmd = document.getElementById(id);
+    if (cmd?.doCommand) cmd.doCommand();
+  }
+
+  function toggleMaximize() {
+    const STATE_MAXIMIZED = 1;
+    if (window.windowState === STATE_MAXIMIZED) {
+      invokeCommand('cmd_restoreWindow');
+    } else {
+      invokeCommand('cmd_maximizeWindow');
     }
-    return mirror;
   }
 
-  function syncWorkspaceName() {
-    const topButtons = document.getElementById('zen-sidebar-top-buttons');
-    if (!topButtons) return;
+  function buildHeader() {
+    const header = document.createElement('div');
+    header.id = HEADER_ID;
 
-    const source = getSourceLabel();
-    const mirror = ensureMirrorLabel(topButtons);
-    mirror.textContent = source?.textContent || '';
+    const dots = document.createElement('div');
+    dots.className = 'hf-header-dots';
+
+    const closeDot = document.createElement('button');
+    closeDot.className = 'hf-header-dot hf-dot-close';
+    closeDot.title = 'Close';
+    closeDot.addEventListener('click', () => invokeCommand('cmd_closeWindow'));
+
+    const minDot = document.createElement('button');
+    minDot.className = 'hf-header-dot hf-dot-min';
+    minDot.title = 'Minimize';
+    minDot.addEventListener('click', () => invokeCommand('cmd_minimizeWindow'));
+
+    const maxDot = document.createElement('button');
+    maxDot.className = 'hf-header-dot hf-dot-max';
+    maxDot.title = 'Maximize';
+    maxDot.addEventListener('click', () => toggleMaximize());
+
+    dots.append(closeDot, minDot, maxDot);
+
+    const name = document.createElement('span');
+    name.id = 'hf-header-space-name';
+    name.textContent = getActiveWorkspaceName();
+
+    header.append(dots, name);
+    return header;
   }
 
-  function observeTopRow() {
-    // Re-sync whenever ANY workspace's [active] attribute changes — this
-    // is what actually happens on switching spaces (a different
-    // <zen-workspace> element becomes the active one; watching one
-    // specific label node, like before, missed this entirely since that
-    // node stayed the same, it just stopped being the active one).
-    // Scoped to just this one attribute so it's cheap even watching the
-    // whole document.
-    new MutationObserver(() => syncWorkspaceName()).observe(document.documentElement, {
+  function ensureHeader() {
+    const tabs = document.getElementById('tabbrowser-tabs');
+    if (!tabs) return;
+
+    let header = document.getElementById(HEADER_ID);
+    if (!header) {
+      header = buildHeader();
+      tabs.prepend(header);
+    } else if (tabs.firstElementChild !== header) {
+      tabs.prepend(header);
+    }
+
+    const name = document.getElementById('hf-header-space-name');
+    if (name) name.textContent = getActiveWorkspaceName();
+  }
+
+  function observe() {
+    // Re-run whenever the active workspace changes, or the sidebar's
+    // tab list is rebuilt (which would otherwise leave our header
+    // behind or duplicated).
+    new MutationObserver(() => ensureHeader()).observe(document.documentElement, {
       attributes: true,
       attributeFilter: ['active'],
       subtree: true
     });
 
-    // Also re-sync on broader toolbar changes and compact-mode toggling,
-    // as a fallback in case workspaces get added/removed/reordered.
-    const navBar = document.getElementById('nav-bar');
-    if (navBar) {
-      new MutationObserver(() => syncWorkspaceName()).observe(navBar, { childList: true });
+    const tabs = document.getElementById('tabbrowser-tabs');
+    if (tabs) {
+      new MutationObserver(() => ensureHeader()).observe(tabs, { childList: true });
     }
-
-    new MutationObserver(() => syncWorkspaceName()).observe(document.documentElement, {
-      attributes: true,
-      attributeFilter: ['zen-compact-mode']
-    });
   }
 
   function init() {
-    syncWorkspaceName();
-    observeTopRow();
+    ensureHeader();
+    observe();
   }
 
   if (document.readyState === 'complete') {
