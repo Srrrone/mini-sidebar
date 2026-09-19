@@ -73,6 +73,18 @@
      to just this one row, not the whole sidebar container, so it
      shouldn't cause the address-bar overlap the broader version did. */
   min-height: 28px !important;
+  /* This toolbar is genuinely inserted into the SAME shared
+     #navigator-toolbox as the address bar and back/forward buttons
+     (confirmed via Zen's source, ZenCustomizableUI.sys.mjs) — it has no
+     width of its own by default, so it just shrink-wraps to fit its
+     content and lets the address bar start immediately after. Pinning
+     it to the sidebar's own width (the same variable the sidebar column
+     below it uses) is what makes it actually align as part of the
+     sidebar, instead of blending into the shared toolbar row. */
+  width: var(--zen-sidebar-width) !important;
+  max-width: var(--zen-sidebar-width) !important;
+  flex: 0 0 var(--zen-sidebar-width) !important;
+  box-sizing: border-box !important;
 }
 
 #zen-sidebar-top-buttons .titlebar-buttonbox-container {
