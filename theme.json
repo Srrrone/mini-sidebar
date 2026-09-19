@@ -1,0 +1,18 @@
+{
+  "id": "sidebar-plus",
+  "name": "Sidebar Plus",
+  "description": "Dia-style pinned-icon grid, colored window-control dots, and Spaces moved to the sidebar top for Zen Browser.",
+  "author": "Srrrone",
+  "version": "0.1.0",
+  "style": {
+    "chrome": "userChrome.css"
+  },
+  "scripts": {
+    "sidebar-plus.uc.js": {
+      "include": [
+        "chrome://browser/content/browser.xhtml"
+      ],
+      "loadOrder": 10
+    }
+  }
+}
