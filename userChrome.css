@@ -93,6 +93,17 @@
   text-overflow: ellipsis !important;
 }
 
+/* Hides the ORIGINAL workspace name/icon/chevron further down in the
+   sidebar — the mirrored label above replaces it, so showing both would
+   just be a duplicate. Only the name/icon/chevron part is hidden, not
+   the whole indicator element, since that element also wraps each
+   workspace's actual tab-list content — hiding the whole thing would
+   take the tabs with it. */
+.zen-current-workspace-indicator-stack,
+.zen-current-workspace-indicator-name {
+  display: none !important;
+}
+
 /* --------------------------------------------------------------------
    Window control buttons, restyled as small macOS-style colored dots
    (Dia's look) instead of Zen's default square min/max/restore/close
