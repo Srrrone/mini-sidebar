@@ -83,23 +83,51 @@
   flex-shrink: 0 !important;
 }
 
-.hf-header-dot {
+/* The relocated REAL window-control buttons (titlebar-buttonbox-
+   container > titlebar-buttonbox > titlebar-button), now living inside
+   our header instead of fake lookalike buttons — same circular-dot
+   restyling as before, just scoped to their new home. */
+#hf-sidebar-header .titlebar-buttonbox-container,
+#hf-sidebar-header .titlebar-buttonbox {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  height: auto !important;
+  width: auto !important;
+}
+
+#hf-sidebar-header .titlebar-button {
   -moz-appearance: none !important;
   appearance: none !important;
   width: 12px !important;
   height: 12px !important;
+  min-width: 12px !important;
+  min-height: 12px !important;
   border-radius: 50% !important;
   padding: 0 !important;
   margin: 0 !important;
   border: none !important;
-  cursor: pointer !important;
 }
 
-.hf-dot-close { background-color: #ff5f57 !important; }
-.hf-dot-min   { background-color: #febc2e !important; }
-.hf-dot-max   { background-color: #28c840 !important; }
+#hf-sidebar-header .titlebar-button > .toolbarbutton-icon,
+#hf-sidebar-header .titlebar-button > .toolbarbutton-text {
+  display: none !important;
+}
 
-.hf-header-dot:hover {
+#hf-sidebar-header .titlebar-button.titlebar-min {
+  background-color: #febc2e !important;
+}
+
+#hf-sidebar-header .titlebar-button.titlebar-max,
+#hf-sidebar-header .titlebar-button.titlebar-restore {
+  background-color: #28c840 !important;
+}
+
+#hf-sidebar-header .titlebar-button.titlebar-close {
+  background-color: #ff5f57 !important;
+}
+
+#hf-sidebar-header .titlebar-button:hover {
   filter: brightness(1.15) !important;
 }
 
@@ -128,7 +156,6 @@
    under the pinned icons. Zeroing this out closes that gap. */
 .zen-current-workspace-indicator {
   padding-block-start: 0 !important;
-  min-height: 0 !important;
 }
 
 /* The native #zen-sidebar-top-buttons toolbar is no longer used for
