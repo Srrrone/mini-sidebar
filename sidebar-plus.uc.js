@@ -2,7 +2,7 @@
 // @name           Sidebar Plus
 // @description    Mirrors the current workspace's name ("Personal", etc.)
 //                  into the sidebar's top row, next to the window controls.
-// @version        2.0.0
+// @version        2.1.0
 // ==/UserScript==
 
 (() => {
@@ -10,15 +10,15 @@
 
   const MIRROR_ID = 'hf-space-name-mirror';
 
-  // The real element showing the current workspace's name
-  // (.zen-current-workspace-indicator-name) is fused into a much bigger
-  // native structure — the vbox that wraps a workspace's entire tab-list
-  // section — not a small standalone label. Actually relocating THAT
-  // risks breaking real tab-list functionality. So instead of moving it,
-  // this creates a small label of our own in the top row and just keeps
-  // its text mirrored to whatever the real one currently shows.
+  // The active workspace's root element gets an `active="true"` attribute
+  // (confirmed via Zen's source, ZenSpace.mjs) — every OTHER workspace's
+  // name label also exists in the DOM at the same time (just not shown),
+  // so a plain querySelector without this scoping always grabbed
+  // whichever one happened to be first in the page, not the one that was
+  // actually active. That's why the mirrored label was stuck on one
+  // workspace's name regardless of which space was actually selected.
   function getSourceLabel() {
-    return document.querySelector('.zen-current-workspace-indicator-name');
+    return document.querySelector('zen-workspace[active] .zen-current-workspace-indicator-name');
   }
 
   function ensureMirrorLabel(topButtons) {
@@ -43,20 +43,21 @@
   }
 
   function observeTopRow() {
-    // Re-sync whenever the real label's text actually changes (switching
-    // workspaces, renaming one, etc.).
-    const source = getSourceLabel();
-    if (source) {
-      new MutationObserver(() => syncWorkspaceName()).observe(source, {
-        childList: true,
-        characterData: true,
-        subtree: true
-      });
-    }
+    // Re-sync whenever ANY workspace's [active] attribute changes — this
+    // is what actually happens on switching spaces (a different
+    // <zen-workspace> element becomes the active one; watching one
+    // specific label node, like before, missed this entirely since that
+    // node stayed the same, it just stopped being the active one).
+    // Scoped to just this one attribute so it's cheap even watching the
+    // whole document.
+    new MutationObserver(() => syncWorkspaceName()).observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ['active'],
+      subtree: true
+    });
 
     // Also re-sync on broader toolbar changes and compact-mode toggling,
-    // in case the source label itself gets recreated rather than just
-    // having its text updated.
+    // as a fallback in case workspaces get added/removed/reordered.
     const navBar = document.getElementById('nav-bar');
     if (navBar) {
       new MutationObserver(() => syncWorkspaceName()).observe(navBar, { childList: true });
